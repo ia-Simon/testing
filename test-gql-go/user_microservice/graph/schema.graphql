@@ -1,0 +1,48 @@
+interface Pagination {
+  page: Int!
+  size: Int!
+  total: Int!
+}
+
+interface MutationPayload {
+  status: Boolean!
+  errors: [MutationPayloadError!]
+}
+
+type MutationPayloadError {
+  code: String!
+  message: String!
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String!
+  age: Int!
+}
+
+type UserPagination implements Pagination {
+  page: Int!
+  size: Int!
+  total: Int!
+  items: [User!]!
+}
+
+type UserMutationPayload implements MutationPayload {
+  status: Boolean!
+  errors: [MutationPayloadError!]
+  resource: User
+}
+
+input CreateUser {
+  name: String!
+  age: Int!
+}
+
+type Query {
+  user(id: ID!): User
+  users(page: Int! = 1, size: Int! = 50): UserPagination!
+}
+
+type Mutation {
+  createUser(input: CreateUser!): UserMutationPayload!
+}

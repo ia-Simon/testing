@@ -1,0 +1,55 @@
+interface Pagination {
+  page: Int!
+  size: Int!
+  total: Int!
+}
+
+interface MutationPayload {
+  status: Boolean!
+  errors: [MutationPayloadError!]
+}
+
+type MutationPayloadError {
+  code: String!
+  message: String!
+}
+
+extend type User @key(fields: "id") {
+  id: ID! @external
+}
+
+type Dog @key(fields: "id") {
+  id: ID!
+  name: String!
+  age: Int!
+  ownerId: String!
+  owner: User!
+}
+
+type DogPagination implements Pagination {
+  page: Int!
+  size: Int!
+  total: Int!
+  items: [Dog!]!
+}
+
+type DogMutationPayload implements MutationPayload {
+  status: Boolean!
+  errors: [MutationPayloadError!]
+  resource: Dog
+}
+
+input CreateDog {
+  name: String!
+  age: Int!
+  ownerId: String!
+}
+
+type Query {
+  dog(id: ID!): Dog
+  dogs(page: Int! = 1, size: Int! = 50): DogPagination!
+}
+
+type Mutation {
+  createDog(input: CreateDog!): DogMutationPayload!
+}

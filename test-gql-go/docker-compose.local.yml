@@ -1,0 +1,55 @@
+volumes:
+  pg_data:
+networks:
+  hostnet:
+    external: true
+    name: 'host'
+services:
+  postgres_db:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=pgpassword123
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - hostnet
+  user_microservice:
+    build:
+      context: ./user_microservice
+      target: final
+    environment:
+      - ENVIRONMENT=local
+      - PORT=15000
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=pgpassword123
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_NAME=go_gql_tests
+    networks:
+      - hostnet
+    restart: 'always'
+  dog_microservice:
+    build:
+      context: ./dog_microservice
+      target: final
+    environment:
+      - ENVIRONMENT=local
+      - PORT=15010
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=pgpassword123
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_NAME=go_gql_tests
+    networks:
+      - hostnet
+    restart: 'always'
+  gql_gateway:
+    build:
+      context: ./gql_gateway
+    environment:
+      - ENVIRONMENT=local
+      - PORT=18000
+      - SUBGRAPH_LIST=users@http://localhost:15000/graphql,dogs@http://localhost:15010/graphql
+    networks:
+      - hostnet
+    restart: 'always'
