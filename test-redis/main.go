@@ -54,4 +54,11 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(res)
+
+	incrRes, err := conn.Incr(context.TODO(), "mykey").Result()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(incrRes)
 }
