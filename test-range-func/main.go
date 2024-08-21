@@ -20,25 +20,24 @@ func main() {
 
 	fmt.Println()
 
-	ch := time.After(10 * time.Second)
-loop:
-	for item := range loop([]int{1, 2, 3, 4, 5}) {
+	for item := range loop([]int{1, 2, 3, 4, 5}, 2) {
 		fmt.Println("Item:", item)
-		time.Sleep(500 * time.Millisecond)
-		select {
-		case <-ch:
-			break loop
-		default:
-		}
+		time.Sleep(150 * time.Millisecond)
 	}
 }
 
-func loop[V any](slice []V) func(func(V) bool) {
+func loop[V any](slice []V, times int) func(func(V) bool) {
 	return func(yield func(V) bool) {
 		sliceLen := len(slice)
+		loopedTimes := 0
+
 		for ptr := sliceLen; ; ptr++ {
 			if ptr == 2*sliceLen {
 				ptr = sliceLen
+				loopedTimes++
+				if times > 0 && loopedTimes == times {
+					return
+				}
 			}
 			if !yield(slice[ptr%sliceLen]) {
 				fmt.Println("stop iteration")
