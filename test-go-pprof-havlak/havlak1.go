@@ -21,11 +21,9 @@ package main
 
 import (
 	"container/list"
-	"flag"
 	"fmt"
-	"log"
-	"os"
-	"runtime/pprof"
+
+	"github.com/pkg/profile"
 )
 
 //======================================================
@@ -785,20 +783,8 @@ func buildBaseLoop(cfgraph *CFG, from int) int {
 	return footer
 }
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-
 func main() {
-	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer f.Close()
-
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
+	defer profile.Start(profile.CPUProfile, profile.ProfilePath(".")).Stop()
 
 	lsgraph := NewLSG()
 	cfgraph := NewCFG()
